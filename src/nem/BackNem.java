@@ -15,6 +15,8 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import nemdata.Tape6;
+import nemdata.GreekLetter;
+import nemdata.SpecialSymbol;
 
 import java.lang.Character;
 import java.io.File;
@@ -34,9 +36,13 @@ class BackNem extends BaknemParserBaseListener {
  static boolean trace = true;
  static boolean debug = true;
  static boolean debugrads = false;
+ static boolean debugmods = true;
  static boolean debugstat = false;
  static boolean debugexprs = false;
  static boolean debugexpr = false; 
+
+ public static String invisX = "<mo>&InvisibleTimes;</mo>";
+ public static String appleFun = "<mo>&ApplyFunction</mo>";
 
  static Tape6 myOutput = new Tape6( "mmlout.htm" );
 
@@ -194,8 +200,129 @@ if (trace) System.out.println( "\n   Exit sqrts ." );
  }
 */
 
-//Indexed radicals -- MML reversed from Nemeth
-//<mroot> base index </mroot>.
+//Underscripts and overscripts
+ //<munderover> base underscript  overscript </munderover>
+@Override
+ public void enterMundov(BaknemParser.MundovContext ctx) {
+  setMML( ctx, "<munderover>" );
+ }
+
+@Override
+ public void exitMundov(BaknemParser.MundovContext ctx) { 
+  if (trace) System.out.println( "    Exit mundov" );
+  StringBuilder buf = new StringBuilder( getMML( ctx ));
+  String tmp;
+   //Collect pieces; should have been backtranslated below
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    tmp = getMML( ctx.getChild(i));
+    //Ignore braille modifier indicators
+    if (tmp != null){
+     buf.append( getMML( ctx.getChild(i)) );
+   }
+  }
+  buf.append( "</munderover>" );
+  setMML( ctx, buf.toString() );
+}
+@Override
+ public void enterMunder(BaknemParser.MunderContext ctx) {
+  setMML( ctx, "<munder>" );
+ }
+
+@Override
+ public void exitMunder(BaknemParser.MunderContext ctx) {
+  if (trace) System.out.println( "    exit munder" );
+  StringBuilder buf = new StringBuilder( getMML( ctx ));
+  String tmp;
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    tmp = getMML( ctx.getChild(i));
+    //Ignore braille modifier indicators
+    if (tmp != null){
+     buf.append( getMML( ctx.getChild(i)) );
+   }
+  }
+  buf.append( "</munder>" );
+  setMML( ctx,buf.toString() );
+  if (debugmods){
+   System.out.println( " munder--setting "+buf.toString() +
+     " ctx: "+ctx );
+   System.out.println( " checking: "+getMML( ctx ) );
+  }
+ 
+ }
+@Override
+ public void enterMover(BaknemParser.MoverContext ctx) {
+  setMML( ctx, "<mover>" );
+ }
+@Override
+ public void exitMover(BaknemParser.MoverContext ctx) { 
+  if (trace) System.out.println( "    exit mover" );
+  StringBuilder buf = new StringBuilder( getMML( ctx ));
+  String tmp;
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    tmp = getMML( ctx.getChild(i));
+    //Ignore braille modifier indicators
+    if (tmp != null){
+     buf.append( getMML( ctx.getChild(i)) );
+   }
+  }
+  buf.append( "</mover>" );
+  setMML( ctx,buf.toString() );
+  if (debugmods){
+   System.out.println( "  mover--setting "+buf.toString() +
+     " ctx: "+ctx );
+   System.out.println( " checking: "+getMML( ctx ) );
+  }
+  ;
+}
+@Override
+ public void exitBegmod(BaknemParser.BegmodContext ctx) {
+ if (trace) System.out.println( "\n   Exit begmod " );
+  StringBuilder buf = new StringBuilder( "<mrow>" );
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    buf.append( getMML( ctx.getChild(i)) );
+  }
+  buf.append( "</mrow>" );
+  setMML( ctx, buf.toString() );
+  if (debugmods){
+   System.out.println( "  begmod--setting "+buf.toString() +
+     " ctx: "+ctx );
+   System.out.println( " checking: "+getMML( ctx ) );
+  }
+}
+@Override
+ public void exitEndmod(BaknemParser.EndmodContext ctx) {
+ if (trace) System.out.println( "\n   Exit endmod " );
+  StringBuilder buf = new StringBuilder( "<mrow>" );
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    buf.append( getMML( ctx.getChild(i)) );
+  }
+  buf.append( "</mrow>" );
+  setMML( ctx, buf.toString() );
+  if (debugmods){
+   System.out.println( "  endmod--setting "+buf.toString() +
+     " ctx: "+ctx );
+   System.out.println( " checking: "+getMML( ctx ) );
+  }
+
+ }
+ //All the non-modified items that be modified or be modifiers
+@Override
+ public void exitNomod(BaknemParser.NomodContext ctx) {
+ if (trace) System.out.println( "\n   Exit nomod " );
+  //StringBuilder buf = new StringBuilder( "<mrow>" );
+  StringBuilder buf = new StringBuilder();
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    buf.append( getMML( ctx.getChild(i)) );
+  }
+  setMML( ctx, buf.toString() );
+  if (debugmods){
+   System.out.println( "  nomod--setting "+buf.toString() +
+     " ctx: "+ctx );
+   System.out.println( " checking: "+getMML( ctx ) );
+  }
+}
+//Indexed radicals -- MML order reversed from Nemeth:
+//    <mroot> base index </mroot>.
 @Override 
  public void enterIrad(BaknemParser.IradContext ctx) {
   setMML( ctx, "<mroot>" );
@@ -396,8 +523,11 @@ public void sqrtStartTag( ParseTree ctx ){
 public void doNorItems( ParseTree ctx, String label ){
  if (trace) System.out.println( "\n   Concat: "+label );
  StringBuilder buf = new StringBuilder();
+ boolean invis = false;
+ if (ctx.getChildCount()==2) invis = true;
   for (int i=0; i<ctx.getChildCount(); i++ ){
     buf.append( getMML( ctx.getChild(i)) );
+    if (i == 0 && invis) buf.append( invisX );
   }
   setMML( ctx, buf.toString() );
   if (debugrads){
@@ -413,10 +543,18 @@ public void doNorItems( ParseTree ctx, String label ){
 @Override
  public void exitExpr(BaknemParser.ExprContext ctx) { 
   if (trace) System.out.println( "\n   Exit expr." );
+  int cnt = ctx.getChildCount();
+  boolean invis = false;
+  if (cnt == 2){
+   String text = ctx.getText();
+   System.out.println( "2 child nodes, Invis times? text: "+ text );
+   invis = true;
+  }
   StringBuilder buf = new StringBuilder();
   //if (ctx.var() == null ) buf.append( getMML( ctx ) );
-   for (int i=0; i<ctx.getChildCount(); i++ ){
+  for (int i=0; i<ctx.getChildCount(); i++ ){
    buf.append( getMML( ctx.getChild(i)) );
+   if (invis && i==0) buf.append( invisX );
   }
   //if (ctx.var() == null ) buf.append( "</expr>" );
   setMML( ctx, buf.toString() );
@@ -614,9 +752,47 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
   //TO-DO Use translation table
   setMML( ctx, "<mo>"+ctx.getChild(0).getText()+"</mo>" );
 }
+//Miscellaneous special symbols
+@Override
+ public void exitSpecsym(BaknemParser.SpecsymContext ctx) {
+  String entity = SpecialSymbol.getEntity( ctx.getText() );
+  setMML( ctx, "<mo>"+entity+"</mo>" );
+ }
+@Override public void exitCmpr(BaknemParser.CmprContext ctx) { 
+ //TO-DO Use translation table
+ String tmp = ctx.getText().toLowerCase();
+ if (tmp.equals( " .k") || tmp.equals( " .k ")){
+  setMML( ctx, "<mo>=</mo>" );
+ } else {
+  System.out.println( "Cannot backtrans comparison symbol: |"+
+     tmp +"|");
+ }
+}
 @Override public void exitVar(BaknemParser.VarContext ctx) {
   //TO-DO Use translation table 
+  if (ctx.greeks() != null ){
+   setMML( ctx, getMML( ctx.getChild( 0 ) ) );
+   return;
+  }
   setMML( ctx, "<mi>"+ctx.getChild(0).getText()+"</mi>" );
+ }
+
+@Override public void exitGreeks(BaknemParser.GreeksContext ctx) { 
+  if (trace) System.out.println( "exit Greek letters." );
+  StringBuilder buf = new StringBuilder();
+  String grkEntity;
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+   grkEntity = GreekLetter.value( ctx.getChild(i).getText() );
+   System.out.println( "ge: "+ grkEntity+" "+ctx.getChild(i).getText() );
+   if (grkEntity != null){
+    buf.append(  "<mo>"+grkEntity+"</mo>" );
+   } else {
+    System.out.println( "Cannot backtrans as Greek: |"+
+                        ctx.getChild(i).getText()+"|" );
+    System.exit( 0 );
+   }    
+  }
+  setMML( ctx, buf.toString() );
  }
 @Override 
  public void exitInteger(BaknemParser.IntegerContext ctx) {

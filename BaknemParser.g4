@@ -4,8 +4,8 @@ options { tokenVocab = BaknemLexer; }
  package nem;
 }
 
-tokens { LATIN_LETTER, FUN_ABBR, FUNCTION_NAME, LC_ROMAN_NUM_SEQ, 
-         UC_ID, CHEM_ELEMENT, POSS_CH_ELEMENT,
+tokens { LATIN_LETTER, FUN_ABBR, FUNCTION_NAME, TRAIL_FUN_ABBR,
+         LC_ROMAN_NUM_SEQ, CHEM_ELEMENT, POSS_CH_ELEMENT,
          SUPER_SUP, SUPER_SUB,   
          SUPER_SUP_SUB, SUPER_SUB_SUB,SUPER_SUP_SUP, SUPER_SUB_SUP,
          HOLLOW_DOT, BFPLUS, PLUS_MINUS, BFMINUS, MINUS_PLUS} 
@@ -20,9 +20,11 @@ space : SPACE;
 exprs : (layexpr);
 
 expr  : lgrp expr rgrp
+      | expr expr 
+      | expr binop1 expr    
       | expr binop expr    
       | expr cmpr expr  
-      | var
+      | var|specsym
       | integer
       | numsub | chnumsub
       | chelement
@@ -30,10 +32,12 @@ expr  : lgrp expr rgrp
       ;
 
 
-layexpr: lgrp layexpr rgrp
+layexpr: 
+     layexpr layexpr   //invisible times 
+     | lgrp layexpr rgrp
+     | layexpr binop1 layexpr    
      | layexpr binop layexpr
      | layexpr cmpr layexpr
-     | layexpr layexpr   //invisible times
      | mfrac | mmfrac | mmmfrac
      | munder | mover | mundov
      | mscript
@@ -44,8 +48,9 @@ layexpr: lgrp layexpr rgrp
 
   //1st inner radical allowed in outer
 nor  : lgrp nor rgrp
-     | nor binop nor
      | nor nor     //invisible times
+     | nor binop1 nor    
+     | nor binop nor
      //| nor cmpr nor
      | mfrac | mmfrac | mmmfrac
      | munder | mover | mundov
@@ -56,9 +61,10 @@ nor  : lgrp nor rgrp
      ;
 
    //2nd inner radical allowed in 1st inner
-nor1  : lgrp nor1 rgrp
-     | nor1 binop nor1
+nor1 : lgrp nor1 rgrp
      | nor1 nor1    //invisible times
+     | nor1 binop1 nor1    
+     | nor1 binop nor1
      //| nor cmpr nor
      | mfrac | mmfrac | mmmfrac
      | munder | mover | mundov
@@ -69,9 +75,10 @@ nor1  : lgrp nor1 rgrp
      ;
 
    //3rd inner radical allowed in 2nd inner
-nor2  : lgrp nor2 rgrp
-     | nor2 binop nor2
+nor2 : lgrp nor2 rgrp
      | nor2 nor2    //invisible times
+     | nor2 binop1 nor2    
+     | nor2 binop nor2
      //| nor cmpr nor
      | mfrac | mmfrac | mmmfrac
      | munder | mover | mundov
@@ -81,10 +88,11 @@ nor2  : lgrp nor2 rgrp
      | func
      ;
 
-  //no inner radicals allowed in 3rd inner
-nor3  : lgrp nor3 rgrp
-     | nor3 binop nor3
+  //no inner radicals allowed in 3rd inner or index
+nor3 : lgrp nor3 rgrp
      | nor3 nor3   //invisible times
+     | nor3 binop1 nor3    
+     | nor3 binop nor3
      //| nor cmpr nor
      | mfrac | mmfrac | mmmfrac
      | munder | mover | mundov
@@ -96,6 +104,8 @@ nor3  : lgrp nor3 rgrp
  //expressions used in sub, sup, subsup
  // no mscript
 nom  : lgrp nom rgrp
+     | nom nom
+     | nom binop1 nom
      | nom binop nom
      | nom cmpr nom
      | mfrac | mmfrac | mmmfrac
@@ -107,10 +117,11 @@ nom  : lgrp nom rgrp
 
   //no fractions in simple fraction
 nof  : lgrp nof rgrp
+     | nof nof
+     | nof binop1 nof
      | nof binop nof
      | nof cmpr nof
      | munder | mover | mundov
-
      | mscript
      | expr
      | func
@@ -118,7 +129,9 @@ nof  : lgrp nof rgrp
      ;
 
  //only simple fractions in complex fraction
-nofc  : lgrp nofc rgrp
+nofc : lgrp nofc rgrp
+     | nofc nofc
+     | nofc binop1 nof
      | nofc binop nofc
      | nofc cmpr nofc
      | munder | mover | mundov
@@ -130,22 +143,24 @@ nofc  : lgrp nofc rgrp
      ;
 
  //no hypercomplex fractions in itself
-nofch  : lgrp nofch rgrp
-     | nofch binop nofch
-     | nofch cmpr nofch
-     | munder | mover | mundov
-     | mscript
-     | expr
-     | func
-     | mfrac|mmfrac
-     | sqrt | irad 
+nofch : lgrp nofch rgrp
+      | nofch nofch
+      | nofch binop1 nofch
+      | nofch binop nofch
+      | nofch cmpr nofch
+      | munder | mover | mundov
+      | mscript
+      | expr
+      | func
+      | mfrac|mmfrac
+      | sqrt | irad 
      ;
 
 mfrac:   SFRAC nof FRAC_SLASH nof ESFRAC;
 mmfrac:  CFRAC nofc    CSLASH nofc ECFRAC;
 mmmfrac: HCFRAC nofch HCSLASH nofch EHCFRAC;
 
-rindex  :   nor;
+rindex  :   nor3;
 sqrt    :   SQRT nor TERM;
 irad    :   MODOVER rindex SQRT nor TERM;
   //Inner radicals are nested, never stand alone
@@ -157,9 +172,12 @@ irad2   :   IRAD2 rindex SQRT nor2 RTRM2;
 sqrt3   :   SQRT3 nor3 RTRM3;
 irad3   :   IRAD3 rindex SQRT nor3 RTRM3;
 
+ //All the items that can be modified or function
+ //as modifiers
 nomod  : lgrp nomod rgrp
-     | nomod binop nomod
      | nomod nomod    //invisible times
+     | nomod binop1 nomod
+     | nomod binop nomod
      | nomod cmpr nomod
      | mfrac | mmfrac | mmmfrac
      | mscript
@@ -187,15 +205,18 @@ func  : (MODIF funabb ((MODUNDER|MODOVER)endmod)
 lgrp    : LGRP;
 rgrp    : RGRP;
 binop   : BINOP;
-cmpr    : CMPR;
-var     : ID|LC_ID|MIXID;
+binop1  : BINOP_PREC; //mult. and div. bind 1at
+cmpr    : CMPR ' ';
+var     : ID|LC_ID|UC_ID|MIXID|greeks;
+greeks  : (GREEK_LETTER)+;
+specsym : INTEGRAL | INFINITY | MISCALPHD46;
 
-integer : INT;
-numsub  : (var|funabb) integer;
+integer    : INT;
+numsub     : (var|funabb) integer;
 chelement  : CHEM_ELEMENT|POSS_CH_ELEMENT;
 chnumsub   : chelement integer;
 chradical  : '(' (chelement | chnumsub)+ ')' SUB integer;
-chformula  : (chelement | chnumsub | chradical)+;
+chformula  : ( chelement | chnumsub | chradical )+;
 
 sup2    : (SUPSUP) script;
 sup2b   : (SUPSUB) script;

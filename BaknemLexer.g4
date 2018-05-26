@@ -8,6 +8,9 @@ lexer grammar BaknemLexer;
   static boolean isFunAbbr( String name ){
     return FunctionName.isBrlFunAbbr( name );
   }
+  static boolean isTrailFA( String name){
+    return FunctionName.trailingFunAbbr( name );
+  }
   static boolean isChemicalSymbol( String brl ){
     return ChemicalElement.isChemicalSymbol( brl );
   }
@@ -28,12 +31,13 @@ fragment GREEK_LETTERs:  ('a'|'b'|'d'..'g'|'i'|'l'..'p'|'r'..'u'|'w'..'z'
     //Cells no. 1-25, 40 ['w']
 
  // 2 or more small letters, possible function abbr.
+ // or var &InvisibleTimes; function abbr.
 LC_ID :  ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z')+
           {if (isFunAbbr( getText() )){
-           setType( BaknemParser.FUN_ABBR );
-          }
+             setType( BaknemParser.FUN_ABBR );
+          } //else if{ isTrailFA( getText())){ ...
          }; 
- //Single cap or small leetter; single cap poss. chem. el.
+ //Single cap or small letter; s single cap poss. chem. el.
 ID    : (',')?('a'..'z'|'A'..'Z')
          {if (isChemicalSymbol( getText() )){
            setType( BaknemParser.POSS_CH_ELEMENT);
@@ -55,6 +59,17 @@ CAP_ROMAN_NUM_SEQ: ','','
                    ROMAN_NUMERALS ROMAN_NUMERALS (ROMAN_NUMERALS)*
                    ;
 
+//Need all caps  TO-DO
+UC_ID :  ',,'('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z')+;
+
+
+GREEK_LETTER: '.'','? GREEK_LETTERs;
+
+MISCALPHD46: ('@,'('a'|'r'|'p'|'s')
+            | '@'('a'|'d'|'e'|'c'|'>'|'$'|'h'|'s'|'0')
+            );
+      
+
 FACTORIAL        : '&';  //Dots 12346,  no. 26
 GENERAL_OMISSION : '=';  //Dots 123456, no. 27
 LGRP             : '(';  //Dots 12356,  no. 28
@@ -69,8 +84,11 @@ fragment ASTER:  '*';   //Dots 16,  no. 31
 BINOP    : PLUS
          | MINUS
          | PLUS DOT5 MINUS
-         | '@'? ASTER // times cross, times dot
-         | './'       //old-fash. div. sign 
+         ;
+
+BINOP_PREC:
+         '@'? ASTER // times cross, times dot
+         | './'     //old-fash. div. sign 
          ;
 
   //Decimal digits with optional leading N.I.
@@ -128,6 +146,8 @@ RTRM3      : '...]';
 
 SPACE    : ' ';
 NEWLINE  : [\r\n]+;
+
+INFINITY : ',=';
 
 INTEGRAL:               //Dots 2346,   no. 29
           '!'           //Single integral

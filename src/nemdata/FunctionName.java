@@ -166,7 +166,12 @@ static boolean makeTables(){
  }
  return true;
 }
-/**Reports if a string ends with a braille function abbreviation. 
+/**Reports if a string ends with a braille function abbreviation.
+   Seems to be only way to recognize "invisible times" expression 
+   where the factor before the function is a lower case
+   identifier, e.g. xsin y.  (The only relevant example is 
+   Rule 119 c(4) where there is a single number preceding and
+   unspaced from the function name abbr.
 
    @return 0 if string does not end with abbreviation,
            otherwise the number of characters in
@@ -186,5 +191,11 @@ static int endsWithFunAbbr( String seq ){
   }
  }
  return len;
+}
+public static boolean trailingFunAbbr( String seq ){
+ int len = endsWithFunAbbr( seq );
+ if (len == 0) return false;
+ if (len == seq.length() ) return false;
+ return true; 
 }
 }//End Class FunctionTable.

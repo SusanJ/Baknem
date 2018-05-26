@@ -378,6 +378,18 @@ public class BaknemParserBaseListener implements BaknemParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMundov(BaknemParser.MundovContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMundov(BaknemParser.MundovContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterEndmod(BaknemParser.EndmodContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -450,6 +462,18 @@ public class BaknemParserBaseListener implements BaknemParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBinop1(BaknemParser.Binop1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBinop1(BaknemParser.Binop1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCmpr(BaknemParser.CmprContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -469,6 +493,30 @@ public class BaknemParserBaseListener implements BaknemParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVar(BaknemParser.VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGreeks(BaknemParser.GreeksContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGreeks(BaknemParser.GreeksContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSpecsym(BaknemParser.SpecsymContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSpecsym(BaknemParser.SpecsymContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

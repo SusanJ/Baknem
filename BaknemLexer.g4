@@ -8,6 +8,9 @@ lexer grammar BaknemLexer;
   static boolean isFunAbbr( String name ){
     return FunctionName.isBrlFunAbbr( name );
   }
+  static boolean isTrailFA( String name){
+    return FunctionName.trailingFunAbbr( name );
+  }
   static boolean isChemicalSymbol( String brl ){
     return ChemicalElement.isChemicalSymbol( brl );
   }
@@ -24,22 +27,42 @@ fragment GREEK_LETTERs:  ('a'|'b'|'d'..'g'|'i'|'l'..'p'|'r'..'u'|'w'..'z'
 //used as a function name abbreviation per Rule XVII
 //A FUNCTION_NAME is a reserved sequence of two or more small letters
 //used as a function name per Rule XVII (currently not considered)
+
+NOTHING: 'NoThInG';
+//START_NEM  : '_' DOTS146 ' ' -> skip, pushMode( NEMETH );
+//mode NEMETH;
+
+BLURB: '<h3>' .*? '</h3>';
                                              
     //Cells no. 1-25, 40 ['w']
 
  // 2 or more small letters, possible function abbr.
+ // or var &InvisibleTimes; function abbr.
 LC_ID :  ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z')+
-          {if (isFunAbbr( getText() )){
-           setType( BaknemParser.FUN_ABBR );
-          }
+         {  if (isFunAbbr( getText() )){
+             setType( BaknemParser.FUN_ABBR );
+            } else if (isTrailFA( getText() )){ 
+             setType( BaknemParser.TRAIL_FUN_ABBR );
+            }
          }; 
- //Single cap or small leetter; single cap poss. chem. el.
+
+//<lim (Upper Limit( and %lim (Lower Limit( are special cases
+LIMS:  ('a'..'z'|'A'..'Z')*('<'|'%')'lim'
+       {    if (isFunAbbr( getText() )){
+             setType( BaknemParser.FUN_ABBR );
+            } else if (isTrailFA( getText() )){ 
+             setType( BaknemParser.TRAIL_FUN_ABBR );
+            }
+       }; 
+
+ //Single cap or sinage small letter; a single cap poss. chem. el.
 ID    : (',')?('a'..'z'|'A'..'Z')
          {if (isChemicalSymbol( getText() )){
            setType( BaknemParser.POSS_CH_ELEMENT);
          }
         };
-  //Single cap followed by single small, likely chem. el.
+
+  //Single cap followed by single small, likely chem. el. symbol
 MIXID : (',')('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z')
          {if (isChemicalSymbol( getText() )){
            setType( BaknemParser.CHEM_ELEMENT);
@@ -55,6 +78,15 @@ CAP_ROMAN_NUM_SEQ: ','','
                    ROMAN_NUMERALS ROMAN_NUMERALS (ROMAN_NUMERALS)*
                    ;
 
+UC_ID :  ',,'('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z')+;
+
+GREEK_LETTER: '.'','? GREEK_LETTERs;
+
+MISCALPHD46: ('@,'('a'|'r'|'p'|'s')
+            | '@'('a'|'d'|'e'|'c'|'>'|'$'|'h'|'s'|'0')
+            );
+      
+
 FACTORIAL        : '&';  //Dots 12346,  no. 26
 GENERAL_OMISSION : '=';  //Dots 123456, no. 27
 LGRP             : '(';  //Dots 12356,  no. 28
@@ -69,8 +101,12 @@ fragment ASTER:  '*';   //Dots 16,  no. 31
 BINOP    : PLUS
          | MINUS
          | PLUS DOT5 MINUS
-         | '@'? ASTER // times cross, times dot
-         | './'       //old-fash. div. sign 
+         ;
+
+//Operators with precedence over above
+BINOP_PREC:
+         '@'? ASTER // times cross, times dot
+         | './'     //old-fash. div. sign 
          ;
 
   //Decimal digits with optional leading N.I.
@@ -90,9 +126,10 @@ SUP      : '^';    //Dots 45, no. 58
 MODIF    : DOT5;
 //BASELINE : DOT5;
 fragment DOT5: '"';
-MODOVER  : '<';   //Dots 126, no. 32
-MODUNDER : '%';   //Dots 146. no. 33
-TERM     : ']';   //Dots 12456, no. 37
+fragment DOTS146: '%';
+MODOVER  : '<';     //Dots 126, no. 32
+MODUNDER : DOTS146; //Dots 146. no. 33
+TERM     : ']';     //Dots 12456, no. 37
 
   //Fraction indicators
 SFRAC      : '?';   //Dots 1456, no. 34
@@ -128,6 +165,8 @@ RTRM3      : '...]';
 
 SPACE    : ' ';
 NEWLINE  : [\r\n]+;
+
+INFINITY : ',=';
 
 INTEGRAL:               //Dots 2346,   no. 29
           '!'           //Single integral

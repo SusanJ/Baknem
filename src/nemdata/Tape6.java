@@ -123,7 +123,7 @@ public void mjHeader( String myTitle ){
  out( "<!DOCTYPE html>" );
  out( "<html>" );
  out( "<head>" );
- out( "<title>MathJax MathML Test Page</title>" );
+ out( "<title>"+myTitle+"</title>" );
  out( "<script type=\"text/javascript\" async" );
  out( "src=\"https://example.com/mathjax/MathJax.js?config=MML_CHTML\">" );
  out( "</script>" );

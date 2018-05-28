@@ -30,6 +30,26 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 */
 	void exitStat(BaknemParser.StatContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BaknemParser#header3}.
+	 * @param ctx the parse tree
+	 */
+	void enterHeader3(BaknemParser.Header3Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#header3}.
+	 * @param ctx the parse tree
+	 */
+	void exitHeader3(BaknemParser.Header3Context ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#funWithArg}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunWithArg(BaknemParser.FunWithArgContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#funWithArg}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunWithArg(BaknemParser.FunWithArgContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BaknemParser#space}.
 	 * @param ctx the parse tree
 	 */
@@ -39,6 +59,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSpace(BaknemParser.SpaceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#postpunc}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostpunc(BaknemParser.PostpuncContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#postpunc}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostpunc(BaknemParser.PostpuncContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BaknemParser#exprs}.
 	 * @param ctx the parse tree
@@ -310,6 +340,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 */
 	void exitMover(BaknemParser.MoverContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BaknemParser#mundov}.
+	 * @param ctx the parse tree
+	 */
+	void enterMundov(BaknemParser.MundovContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#mundov}.
+	 * @param ctx the parse tree
+	 */
+	void exitMundov(BaknemParser.MundovContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BaknemParser#endmod}.
 	 * @param ctx the parse tree
 	 */
@@ -319,6 +359,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEndmod(BaknemParser.EndmodContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#varXfunabb}.
+	 * @param ctx the parse tree
+	 */
+	void enterVarXfunabb(BaknemParser.VarXfunabbContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#varXfunabb}.
+	 * @param ctx the parse tree
+	 */
+	void exitVarXfunabb(BaknemParser.VarXfunabbContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BaknemParser#funabb}.
 	 * @param ctx the parse tree
@@ -370,6 +420,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 */
 	void exitBinop(BaknemParser.BinopContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BaknemParser#binop1}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinop1(BaknemParser.Binop1Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#binop1}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinop1(BaknemParser.Binop1Context ctx);
+	/**
 	 * Enter a parse tree produced by {@link BaknemParser#cmpr}.
 	 * @param ctx the parse tree
 	 */
@@ -379,6 +439,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCmpr(BaknemParser.CmprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#singleLet}.
+	 * @param ctx the parse tree
+	 */
+	void enterSingleLet(BaknemParser.SingleLetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#singleLet}.
+	 * @param ctx the parse tree
+	 */
+	void exitSingleLet(BaknemParser.SingleLetContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BaknemParser#var}.
 	 * @param ctx the parse tree
@@ -390,15 +460,35 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 */
 	void exitVar(BaknemParser.VarContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BaknemParser#integer}.
+	 * Enter a parse tree produced by {@link BaknemParser#greeks}.
 	 * @param ctx the parse tree
 	 */
-	void enterInteger(BaknemParser.IntegerContext ctx);
+	void enterGreeks(BaknemParser.GreeksContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BaknemParser#integer}.
+	 * Exit a parse tree produced by {@link BaknemParser#greeks}.
 	 * @param ctx the parse tree
 	 */
-	void exitInteger(BaknemParser.IntegerContext ctx);
+	void exitGreeks(BaknemParser.GreeksContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#specsym}.
+	 * @param ctx the parse tree
+	 */
+	void enterSpecsym(BaknemParser.SpecsymContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#specsym}.
+	 * @param ctx the parse tree
+	 */
+	void exitSpecsym(BaknemParser.SpecsymContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void enterNumber(BaknemParser.NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void exitNumber(BaknemParser.NumberContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BaknemParser#numsub}.
 	 * @param ctx the parse tree
@@ -529,6 +619,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitScript(BaknemParser.ScriptContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#subscript}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubscript(BaknemParser.SubscriptContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#subscript}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubscript(BaknemParser.SubscriptContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BaknemParser#supscript}.
 	 * @param ctx the parse tree

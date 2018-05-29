@@ -133,10 +133,14 @@ public final class ChemicalElement {
 
   String symbol;
   String name;
+  boolean singleLetterName = false;
 //================================================================
 ChemicalElement( String symbol, String name ){
  this.symbol = symbol;
  this.name = name;
+ if (name.length() == 2){
+  singleLetterName = true;
+ }
 }
 String getSymbol(){return symbol;}
 String getName(){return name;}

@@ -11,8 +11,9 @@ tokens { LATIN_LETTER, FUN_ABBR, FUNCTION_NAME, TRAIL_FUN_ABBR,
          HOLLOW_DOT, BFPLUS, PLUS_MINUS, BFMINUS, MINUS_PLUS} 
       
 
-prog  : stat+;
-stat  : space* exprs (space+ exprs)* space* NEWLINE     
+prog  : stat+ EOF;
+stat  : space* exprs (space+ exprs)* space* NEWLINE 
+      | matrix    
       | NEWLINE 
       //| header3 NEWLINE 
       ;
@@ -26,9 +27,25 @@ funWithArg  : (MODIF funabb ((MODUNDER|MODOVER)endmod)
                        )? 
               )(space layexpr);
 
+row   : ENLGRP layexpr ((space)+layexpr)* ENRGRP;
+matrix : (row (space* NEWLINE))+;
 space : SPACE;
 postpunc: PI_PUNC;
 exprs : ( layexpr )postpunc?;
+
+//HACK  need cpmr  maybe a nexpr???
+nexpr  : 
+       expr expr 
+      | expr binop1 expr    
+      | expr binop expr    
+      //| expr cmpr (expr)? 
+      //| cmpr
+      | numsub | chnumsub 
+      | var|specsym
+      | number
+      | chelement
+      | chformula
+      ;
 
 expr  : lgrp expr rgrp
       | expr expr 
@@ -42,6 +59,20 @@ expr  : lgrp expr rgrp
       | chelement
       | chformula
       ;
+
+nlayexpr: 
+     layexpr layexpr   //invisible times 
+          | layexpr binop1 layexpr    
+     | layexpr binop layexpr
+     | layexpr cmpr (layexpr)?
+     | mfrac | mmfrac | mmmfrac
+     | munder | mover | mundov
+     | mscript
+     | sqrt| irad
+     | nexpr
+     |funWithArg
+     | func
+     ;
 
 
 layexpr: 
@@ -116,11 +147,12 @@ nor3 : lgrp nor3 rgrp
 
  //expressions used in sub, sup, subsup
  // no mscript
-nom  : lgrp nom rgrp
+nom  :
+     lgrp nom rgrp
      | nom nom
      | nom binop1 nom
      | nom binop nom
-     | nom cmpr nom
+     //| nom cmpr nom
      | mfrac | mmfrac | mmmfrac
      | munder | mover | mundov
      | expr
@@ -223,16 +255,16 @@ lgrp    : LGRP;
 rgrp    : RGRP;
 binop   : BINOP;
 binop1  : BINOP_PREC|FRAC_SLASH ; //mult. and div. bind 1at
-cmpr    : (CMPR| space ARROW)(space layexpr)?;
+cmpr    : (CMPR| space ARROW)(space (msub|layexpr))?;
 singleLet: ID|POSS_CH_ELEMENT;
 var     : singleLet+|LC_ID|UC_ID|MIXID|greeks;
 greeks  : (GREEK_LETTER)+;
 specsym : INTEGRAL | INFINITY | MISCALPHD4 ;
 
 number     : INT (INT)*| (INT)*REAL(INT)*|INTxGREEK;
-numsub     : (var|funabb) number;
+numsub     : (var|funabb) number MODIF?;
 chelement  : CHEM_ELEMENT|POSS_CH_ELEMENT;
-chnumsub   : chelement number;
+chnumsub   : chelement number MODIF?;
 chradical  : '(' (chelement | chnumsub)+ ')' SUB number;
 chformula  :  chnumsub 
              | ( chelement | chnumsub | chradical )
@@ -244,13 +276,15 @@ sup22   : (SUPSUB) script (SUPSUP) script;
 sub2    : (SUBSUB) script;
 sub2p   : (SUBSUP) script;
 sub22   : (SUBSUB) script (SUBSUP) script;
-//base    : (var|number|expr); 
-base: nom;
+// TO-DO  THIS IS NOT GENERAL ENOUGH
+base    : (var|number|specsym|mfrac|lgrp+ nexpr rgrp+|lgrp+ nlayexpr rgrp+ ); 
+//base: nom;
 script  : nom;
 subscript: SUB script;
 supscript: SUP script;
+//mprod   : base '^'script;
 msub    : base SUB script (sub2|sub2p|sub22)? MODIF? ;
-msup    : base SUP script (sup2|sup2b|sup22)? MODIF? ;
+msup    : base '^' script (sup2|sup2b|sup22)? MODIF? ;
 msubsup : base subscript supscript MODIF? ;
 mscript : msub | msup | msubsup;
 

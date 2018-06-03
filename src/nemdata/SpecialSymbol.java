@@ -6,7 +6,7 @@ public class SpecialSymbol {
  Technical Note
    This class does not providing different results
    for operators indicated to be in boldface.  Typeforms
-   that correspond to attributes in MathML need to be
+   represented attributes in MathML need to be
    handled as such.
 */
 
@@ -14,7 +14,12 @@ public class SpecialSymbol {
 
  static final SpecialSymbol [] miscTable = {
 
-   //Dot-6 miscellaneous symbols
+   //Dots-456Rule XXII Miscellaneous Symbols
+  new SpecialSymbol("_<", "&#x02C6;"), //Circumflex (Caret)
+  new SpecialSymbol("_%", "&#x02C7;"), //Caron (Inverted Caret)
+  new SpecialSymbol("_8", "U+2207"),   //Combining question mark
+  new SpecialSymbol("_0", "U+2207"),   //Empty set
+   //Dot-4 miscellaneous symbols
   new SpecialSymbol( "@,a", "&#x212B;"),    //Angstrom Unit
   new SpecialSymbol( "@,r", "&#x211E;"),    //Crossed R
   new SpecialSymbol( "@,p", "&#x00B6;"),    //Paragraph mark
@@ -25,12 +30,11 @@ public class SpecialSymbol {
   new SpecialSymbol( "@>",  "&#x00A2;"),    //Check mark
   new SpecialSymbol( "@$",  "&#x0111;"),    //Crossed d
   new SpecialSymbol( "@h",  "&#x0127;"),    //Crossed h
-  
-  //new SpecialSymbol( "@,r", "&#x211E;"),    //Crossed R
   new SpecialSymbol( "@s",  "$"),           //$
   new SpecialSymbol( "@0",  "%"),           //Percent sign
   new SpecialSymbol( "@d",  "&#x2202;"),    //Partial derivative
-  new SpecialSymbol( "@=\\","exists"),      //Existential quantifier
+  new SpecialSymbol( "@=\\","exists"),      //Existential 
+//quantifier ???  
   
   new SpecialSymbol( "@.l", "&#x00A2;"),    //Crossed lambda
 
@@ -104,7 +108,7 @@ public class SpecialSymbol {
   new  SpecialSymbol( ".1:",  "&#x2265;" )   //greater than w/ bar under
  };
 
-//Add binops and also comparisons
+
 
  static HashMap<String,SpecialSymbol> symbolTable = 
     new HashMap<String,SpecialSymbol> ();

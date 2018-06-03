@@ -34,7 +34,7 @@ NOTHING: 'NoThInG';
 
 BLURB: '<h3>' .*? '</h3>';
                                              
-    //Cells no. 1-25, 40 ['w']
+    // ==Cells no. 1-25, 40 ['w']==
 
  // 2 or more small letters, possible function abbr.
  // or var &InvisibleTimes; function abbr.
@@ -96,6 +96,7 @@ MISCALPHD4  : ('@,'('a'|'r'|'p'|'s')
 fragment USCORE: '_';
 fragment APOS:   '\'';
 fragment DOT6:   ',';
+fragment DOTS156: ':'; // no. 34 ==
 
 PI_PUNC: USCORE(APOS|'3'|'4'
                |'2'|'6'|'8'|'0'(APOS)?
@@ -106,17 +107,18 @@ PRE_PUNC:   (DOT6)?'8';
  //TO_DO hyphen is problem because of minus!
 MISC_PUNC: 	('---'|'-')'-' |APOS APOS APOS  ;
 
-FACTORIAL        : '&';  //Dots 12346,  no. 26
-GENERAL_OMISSION : '=';  //Dots 123456, no. 27
-LGRP             : '(';  //Dots 12356,  no. 28
+FACTORIAL        : '&';  //Dots 12346,  no. 26 ==
+GENERAL_OMISSION : '=';  //Dots 123456, no. 27 ==
+LGRP             : '(';  //Dots 12356,  no. 28 ==
                          //See below for no. 29, integrals
-RGRP             : ')';  //Dots 23456,  no. 30
-
-        
+ENLGRP           : ('@')?',(';
+RGRP             : ')';  //Dots 23456,  no. 30 ==
+ENRGRP           : ('@')?',)';
+      
 fragment PLUS:   '+';   //Dots 346, no. 52
 fragment MINUS:  '-';   //Dots 36,  no. 56
-fragment BSLASH: '\\'; 
-fragment ASTER:  '*';   //Dots 16,  no. 31
+fragment BSLASH: '\\';  //DOTS1256, no. 38 ==
+fragment ASTER:  '*';   //Dots 16,  no. 31 ==
 BINOP    : PLUS
          | MINUS
          | PLUS DOT5 MINUS
@@ -128,11 +130,10 @@ BINOP_PREC:
          | './'     // old-fash. div. sign 
          ;
 
-fragment DEC_DIG: [0-9];
-fragment DOTS46: '.';
+fragment DEC_DIG: [0-9]; fragment DOTS46: '.';
 
   //Decimal digits with optional leading N.I.
- //Lower digits, nos. 41-50
+ //Lower digits, nos. 41-50  ==
  //2.p is print 2PI not 2.p; print 2.PI is brl 2.".p
 
 INT      : ('_#'|'.#'|'#')? DEC_DIG+
@@ -144,7 +145,7 @@ INT      : ('_#'|'.#'|'#')? DEC_DIG+
 REAL     : ('_#'|'.#'|'#')?
            ( DEC_DIG+ DOTS46 (DOT5
                              |DEC_DIG
-                             )
+                             )?
            | (DOTS46 DEC_DIG+) 
            )   
           ; 
@@ -164,12 +165,12 @@ MODIF    : DOT5;
 //BASELINE : DOT5;
 fragment DOT5: '"';
 fragment DOTS146: '%';
-MODOVER  : '<';     //Dots 126, no. 32
-MODUNDER : DOTS146; //Dots 146. no. 33
+MODOVER  : '<';     //Dots 126, no. 32  ==
+MODUNDER : DOTS146; //Dots 146. no. 33  ==
 TERM     : ']';     //Dots 12456, no. 37
 
   //Fraction indicators
-SFRAC      : '?';   //Dots 1456, no. 34
+SFRAC      : '?';   //Dots 1456, no. 34 ==
 FRAC_SLASH : '_'?'/';
 ESFRAC     : '#';   //Dots 3456, no. 53
 CFRAC      : ',?';  
@@ -195,7 +196,7 @@ RTRM1      : '.]';
 RTRM2      : '..]';
 RTRM3      : '...]';
 
-ARROW    : '$'(('--')? ('o'|'O') //Rt.
+ARROW    : '$'(('--')? ('o'|'O') //Rt. DOTS 1246, no. 36
          |     ('[--')           //Left
          |     ('[--'('o'|'O'))  //R&L
          |     ('<--'('o'|'O'))  //Up
@@ -211,11 +212,11 @@ INFINITY : ',=';
 INTEGRAL:               //Dots 2346,   no. 29
           '!'           //Single integral
            (('!')+      //Multiple integrals
-           |'@'('$'('c' //Integral with sup. circle
-                   |'r' //Integral with sup. rectangle
-                   |'4' //Integral with sup. square
+           |'@'('$'('c' //Int. w/ sup. circle (contour int.)
+                   |'r' //Int. w/ sup. rectangle
+                   |'4' //Int. w/ sup. square
                    )
-               |',''='  //Integral with sup. infinity
+               |',''='  //Int. w/ sup. infinity
                )
             ']'
            )?

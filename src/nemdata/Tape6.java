@@ -11,6 +11,21 @@ public class Tape6 {
   public static final String END_FONT  = "</span>";
   public static final String XB_FONT   = " <span class=\"xb\">";
 
+          /**XML entity for apostrophe character.*/
+ static final String XML_APOS = "&apos;";
+
+          /**XML entity for ampersand character.*/
+ static final String XML_AMP  = "&amp;";
+
+          /**XML entity for greater than character.*/
+ static final String XML_GT   = "&gt;";
+
+          /**XML entity for less than character.*/
+ static final String XML_LT   = "&lt;";
+
+          /**XML entity for neutral double quotes character.*/
+ static final String XML_QUOT = "&quot;";
+
 /**Maximum number of files that can be handled.
    [Using a dynamically-allocated array didn't
    seem worth it.]
@@ -135,6 +150,37 @@ public void mjHeader( String myTitle ){
  out( "<body>" );
 
 //this.out (buf.toString());
+}
+//  Fixes ASCII Braille String (or anything actually)
+// by replacing (espcaping( any XML reserved 
+// characters with the correct entities
+public void outFix( String stag, String line, String etag ){
+ String fixed = fixABrl( line );
+ out(  stag+line+etag );
+}
+static String fixABrl( String aString ){
+ StringBuilder buf = new StringBuilder();
+ char [] aCharArray = aString.toCharArray();
+ for (int c = 0; c<aCharArray.length; c++){
+  buf.append( fixXMLText( aCharArray[c] ));
+ }
+ return buf.toString();
+}
+private static String fixXMLText( char a ){
+ switch (a){
+  case '&':
+   return XML_AMP;
+  case '\'':
+   return XML_APOS;
+  case '>':
+   return XML_GT;
+  case '<':
+   return XML_LT;
+  case '"':
+   return XML_QUOT;
+  default:
+   return String.valueOf( a );
+ }
 }
 /**Copies the specified file to this file.
    @param  header  Filename of file to be copied;

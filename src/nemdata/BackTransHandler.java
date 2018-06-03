@@ -26,6 +26,12 @@ public static String backTransPIPunc( String piPunc ){
  }
  return ink;
 }
+public static String backTransPunc( String brl ){
+ String ink = Punctuation.getPrePunc( brl );
+ if (ink != null) return ink;
+ return Punctuation.getPostPunc( brl );
+}
+ 
 /**Backtranslates a sequence of lc letters.*/
 public static String backVar( String seq ){
   StringBuilder buf = new StringBuilder();
@@ -43,7 +49,7 @@ public static String backVar( String seq ){
    per Nemeth Rule V,Sec 32.
 */
 public static String backLetter2Tok( String brl ){
- if (brl.length() < 2){
+ if (brl.length() < 3){
   return smiTag+Letter.backTrans( brl )+emiTag;
  }
  if (brl.startsWith( boldSymEng )){
@@ -104,6 +110,7 @@ public static void doTables(){
  Letter.makeNAAbrlToPrint( true, false );
  Punctuation.makePostPuncBTTable( true, false );
  Numeric.makeTable( false );
+ Grouping.makeLeftAndRight();
 }
 public static void main( String [] args ){
  doTables();

@@ -16,14 +16,17 @@ public class GreekLetter {
  static final String CAP_IND = ",";
  static final String GREEK_CAP = ".,";
 
+ //Uppercase letters determined automatically by
+ //Java via Unicode information
+
  static final GreekLetter [] letters = {
   new GreekLetter ("a", '\u03B1' ), //new GreekLetter (",a", '\u0391' ),
   new GreekLetter ("b", '\u03B2' ), //new GreekLetter (",b", '\u0392' ),
-  new GreekLetter ("&", '\u03B3' ), //new GreekLetter (",&", "Chi"),
+  new GreekLetter ("&", '\u03C7' ), //new GreekLetter (",&", "Chi"),
   new GreekLetter ("d", '\u03B4' ), //new GreekLetter (",d", "Delta"),
   new GreekLetter ("e", '\u03B5' ),
   new GreekLetter (":", '\u03B7' ),
-  new GreekLetter ("g", '\u03B5' ), //new GreekLetter (",g", "Gamma"),
+  new GreekLetter ("g", '\u03B3', "gamma" ), 
   new GreekLetter ("i", '\u03B9' ),
   new GreekLetter ("k", '\u03BA' ),
   new GreekLetter ("l", '\u03BB' ), //new GreekLetter (",l", "Lambda"),
@@ -31,12 +34,12 @@ public class GreekLetter {
   new GreekLetter ("n", '\u03BD' ), //nu
   new GreekLetter ("w", '\u03BF' ), //new GreekLetter (",w", "Omega"),
   new GreekLetter ("f", '\u03C6' ), //new GreekLetter (",f", "Phi"),
-  new GreekLetter ("p", '\u03C0' ),  //new GreekLetter (",p", "&Pi' ),
+  new GreekLetter ("p", '\u03C0', "pi" ), 
   new GreekLetter ("y", '\u03C8' ),
   new GreekLetter ("r", '\u03C1' ),
   new GreekLetter ("s", '\u03C3' ), //new GreekLetter (",s", "&Sigma' ),
   new GreekLetter ("t", '\u03C4' ),
-  new GreekLetter ("?", '\u03B8' ),  //new GreekLetter (",?" , "Theta"), 
+  new GreekLetter ("?", '\u03B8', "theta"),  
   new GreekLetter ("u", '\u03C5' ),
   new GreekLetter ("x", '\u03C7' ), //new GreekLetter (",x", "Xi"),
   new GreekLetter ("z", '\u03B6' ),
@@ -56,6 +59,7 @@ public class GreekLetter {
  String entityUC;
  char uni;
  char uniUC;
+ String word;
  static boolean tableMade = makeTable();
  
 //============================================= 
@@ -68,6 +72,10 @@ private GreekLetter( String brl, char uni ){
  this.uni = uni;
  this.entityLC = char2Entity( uni );
  this.entityUC = lcChar2UCEntity( uni );  
+}
+private GreekLetter( String brl, char uni, String word ){
+ this( brl, uni );
+ this.word = word;
 }
 String getBrl(){return brl;}
 String getCode(){return htmlCode;}

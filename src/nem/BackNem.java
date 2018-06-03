@@ -16,12 +16,15 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import nemdata.Tape6;
 import nemdata.GreekLetter;
+import nemdata.Grouping;
 import nemdata.SpecialSymbol;
 import nemdata.FunctionName;
 import nemdata.Numeric;
 import nemdata.BackTransHandler;
+import nemdata.WellFormed;
 
 import java.lang.Character;
+import java.lang.Exception;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -38,27 +41,38 @@ public class BackNem extends BaknemParserBaseListener {
  
  static boolean printParseTree = false;
  static boolean printMMLTree = false;
- static boolean trace = false;
+ static boolean trace = true;
+ static boolean boilerplate = false;
+
  static boolean debug = false;
+ static boolean debugassoc = true;
+ static boolean debugexpr = false; 
+ static boolean debugexprs = false;
+ static boolean debugfracs = false;
  static boolean debugrads = false;
  static boolean debugmods = true;
  static boolean debugstat = false;
- static boolean debugexprs = false;
- static boolean debugexpr = false; 
+ static boolean debuglayout = true;
  static boolean debugsubsup = false;
- static boolean debugfracs = false;
  static boolean debugNum = false;
+ 
+ static boolean visitTermNode = false;
+ static boolean showTermNode = false;
+ static boolean checkWellFormed = false;
 
- public static String invisX = "<mo>&InvisibleTimes;</mo>";
- public static String appleFun = "<mo>&ApplyFunction;</mo>";
+ public static String invisX = "<mo>&#x2062;</mo>";
+ public static String appleFun = "<mo>&#x2061;</mo>";
 
  static Tape6 myOutput = new Tape6( "mmlout.htm" );
 
  BufferedTokenStream allTokens;
+ Vocabulary VOCABULARY;
 
  BackNem( BufferedTokenStream allTokens ){
    this.allTokens = allTokens;
    BackTransHandler.doTables();
+   WellFormed.init();
+   this.VOCABULARY= BaknemParser.VOCABULARY;
   }
 //===================================================
   ParseTreeProperty<String> nem =
@@ -73,6 +87,16 @@ public class BackNem extends BaknemParserBaseListener {
    return nem.get( ctx );
   }
 //====================================================
+@Override
+ public void visitTerminal(TerminalNode node) {
+  if (!visitTermNode) return;
+  Token tok = node.getSymbol();
+  String name = 
+   VOCABULARY.getSymbolicName( tok.getType() );
+ if (showTermNode){
+  System.out.println( "Terminal node: "+name );
+ }
+ }
 
 @Override 
  public void enterProg(BaknemParser.ProgContext ctx) {
@@ -83,12 +107,13 @@ public class BackNem extends BaknemParserBaseListener {
                      " lines." ); 
   }
   myOutput.out( "<h3>Nemeth Backtranslation Examples</h3>" );
-  explain();
+  if (boilerplate) explain();
   myOutput.out( "<p>Nemeth Braille Math input: " );
   myOutput.out( "<ol>");
   String nem;
   String disfont = "\"sm\"";
-  for (int i=0; i<ctx.getChildCount(); i++ ){
+  //Last line is EOF, ignore here
+  for (int i=0; i<ctx.getChildCount()-1; i++ ){
    nem = ctx.getChild(i).getText();
    if (nem.length() > 1 && !nem.startsWith("<h3>")){
     int len = nem.length()-1;
@@ -97,60 +122,57 @@ public class BackNem extends BaknemParserBaseListener {
    }
   }
   myOutput.out( "</ol></p>" );
- /**
-  myOutput.out( "<p>This webpage and the"+
-  " MathML-based backtranslation"+
-  " of the braille math"+
-  " were produced automatically by "+
-  " <a href=\"https://github.com/SusanJ/Baknem\">Backnem 2.0</a>.</p>"+
-  " <p>Backnem is a new  Java application which "+
-  " uses a  two-step process"+
-  " to convert Nemeth braille math to MathML."+
-  " The first step analyzes the braille input"+
-  " using an ANTLR 4 parser generated from"+
-  " a Nemeth grammar developed specifically for"+
-  " Backnem 2.0.  The second step backtranslates "+
-  " the parser output using a custom procedure "+  
-  " implemented in Java. (This webpage utilizes"+
-  " <a href=\"https://www.mathjax.org/\">MathJax<a> for"+
-  " rendering since MathJax can display MathML mathematics"+
-  " in any browser.)</p>"); 
- */ 
+ 
 }
 @Override 	
- public void exitProg(BaknemParser.ProgContext ctx) { 
+ public void exitProg(BaknemParser.ProgContext ctx)  { 
   if (trace) System.out.println( "Exit prog." );
   StringBuilder buf = new StringBuilder();
   buf.append( getMML( ctx ) );
   int num = 0;
   String ink;
-  for (int i=0; i<ctx.getChildCount(); i++ ){
+  boolean skip = false;
+  
+  //Last item is required EOF, ignore for output
+  for (int i=0; i<ctx.getChildCount()-1; i++ ){
+   skip = false;
    if (debugstat){
     System.out.println( " --exit prog child: "+i+" text: "+ 
            ctx.getChild(i).getText() );
    }
 
    ink = getMML( ctx.getChild(i) );
-
-   if (ink.startsWith( "<h3>" )){
-    buf.append( ink );
-    myOutput.out( ink );
-   } else {
-    num = num+1;
-    myOutput.out( "<p>Line number "+num+":");
-    myOutput.out
-   ("<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"block\">");
-
-   myOutput.out( getMML( ctx.getChild(i) ));
-   buf.append( getMML( ctx.getChild(i) ) );
-   myOutput.out( "</math>" );
-   myOutput.out( "</p><hr/>" );
-   }
+   if (ink != null){
+     if (ink.startsWith( "<h3>" )){
+      buf.append( ink );
+      myOutput.out( ink );
+     } else {
+      num = num+1;
+      myOutput.out( "<p>Line number "+num+":");
+      myOutput.out
+        ("<math xmlns=\"http://www.w3.org/1998"+
+         "/Math/MathML\" display=\"block\">");
+      myOutput.out( getMML( ctx.getChild(i) ));
+      buf.append( getMML( ctx.getChild(i) ) );
+      myOutput.out( "</math>" );
+      myOutput.out( "</p><hr/>" );
+     }
+     skip = true;
+    }
   }
-  buf.append( "</math>" );
+  if (!skip) buf.append( "</math>" );
+  if (checkWellFormed){
+   try {
+     System.out.println( "FINAL: " );
+     System.out.println( buf.toString() );
+     boolean b = WellFormed.isWellFormedXML( buf.toString() );
+   } catch (Exception e){
+     System.out.println();
+     System.out.println( "Output: "+e.getMessage() );
+   }
+  }//End check on well-formed XML.
+
   setMML( ctx, buf.toString() );
-  
-  
   myOutput.out( "<p></br>That's all folks!</p>" );
  }
 @Override 
@@ -212,6 +234,22 @@ public class BackNem extends BaknemParserBaseListener {
    System.out.println( " checking: "+getMML( ctx ) );
   }
 }
+//General expressions that -- if enclosed in grouping symbols
+//to create a single row -- can be the base of a script layout
+@Override
+ public void exitNlayexpr(BaknemParser.NlayexprContext ctx) {
+  if (trace) System.out.println( "\n   Exit nlayexpr ." );
+  StringBuilder buf = new StringBuilder();
+  for (int i=0; i<ctx.getChildCount(); i++ ){
+    buf.append( getMML( ctx.getChild(i)) );
+  } 
+  setMML( ctx, buf.toString() );
+  if (debuglayout){
+   System.out.println( "  nlayexpr--setting "+buf.toString() +
+     " ctx: "+ctx );
+   System.out.println( " checking: "+getMML( ctx ) );
+  }
+ }
 @Override 
  public void exitLayexpr(BaknemParser.LayexprContext ctx) { 
   if (trace) System.out.println( "\n   Exit layexpr ." );
@@ -755,8 +793,53 @@ public void doNorItems( ParseTree ctx, String label ){
    System.out.println( "mmfrac: "+buf.toString() );
   }
   setMML( ctx, buf.toString() );
-
 }
+ //Find best place to put msup start tag
+public static String insertMsup( String seq1, String seq2, String stag, String etag ){
+ String working = seq1;
+ int i1 = working.length();
+
+ boolean done = false;
+ boolean b;
+ while (!done){
+   b = working.endsWith( "</mrow>" );
+   if (b){
+    working = working.substring(0,i1-7 );
+    i1 = working.length();
+   } else {
+    done = true;
+   }
+  } //End while
+ 
+ //Finding base so msup goes just before base
+ int pos = seq1.lastIndexOf( "<mr" ); // last mrow to insert msub after
+
+ //We need to be searching in seq2 for script
+ int pos1 = seq1.indexOf( "</mr", pos ); // next /mrow to insert /msub before
+ String part1 = seq1.substring(0, pos);
+ String part2 = "</mrow>" + stag.toUpperCase()+"<mrow>";
+ String part3 = seq1.substring( pos );// + "</mrow><mrow>";
+ String part4 = seq2 + etag.toUpperCase();
+ System.out.println( "part1: "+part1) ;
+ System.out.println( "part2: "+part2) ;
+ System.out.println( "part3: "+part3) ;
+ System.out.println( "part4: "+part4) ;
+
+ String result = seq1.substring(0, pos) +
+                "</mrow>" + stag+"<mrow>" +
+                seq1.substring( pos ) + 
+
+                seq2 + etag ;
+ System.out.println( "IMSUB -- INPUT and RESUlt" );
+ //System.out.println( seq1+seq2 );
+ System.out.println( seq1);
+ System.out.println();
+ System.out.println( seq2 );
+ System.out.println();
+ System.out.println( result );
+ return result;
+}
+                 
 @Override 
 public void exitMfrac(BaknemParser.MfracContext ctx) { 
 
@@ -785,7 +868,17 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
  public void exitMsup(BaknemParser.MsupContext ctx) { 
   if (trace) System.out.println( "\n   Exit msup." );
   StringBuilder buf = new StringBuilder();
-  buf.append( getMML( ctx ) );
+ //buf.append( getMML( ctx ) );
+  if (debugassoc){
+   System.out.println( "msup chilren cnt: "+ctx.getChildCount());
+  }
+  
+  //Since Nemeth doesn't use an indicator *before* the base of a
+  //subscript the parser doesn't know where it starts.  
+ 
+  buf.append( "<msup>" );
+  String seq1 = null;
+  String seq2 = null;
   for (int i=0; i<ctx.getChildCount(); i++ ){
    if (!ctx.getChild(i).getText().startsWith( "^") &&
        !ctx.getChild(i).getText().startsWith( ";") &&
@@ -793,15 +886,54 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
       ){
     String doneBelow = getMML( ctx.getChild(i));
     if (doneBelow == null){
-     System.out.println( "Exit Msup -- null child: "+i+" "+
+     if (debugassoc){
+      System.out.println( "Exit Msup -- null ink for brl child: "+i+" "+
       ctx.getChild(i).getText() );
-    }else{
-      buf.append( getMML( ctx.getChild(i)) );
+     }
+    }else {
+     if (debugassoc){
+      System.out.println( "Exit Msup -- ink expr child: "+i+" "+
+       doneBelow );
+      }
+      if (i==0) seq1 =  doneBelow;
+      if (i>0) seq2 =  doneBelow;
+//THIS IS THE ONE THAT NEEDS THE MSUP NEAR ITS END
+      //if (i > 0) buf.append( "<msup>" );
+      buf.append( doneBelow );
     }
    }
   }
+/**
+  System.out.println( "in exit msup Checking if seq1 valid." );
+   try {
+  System.out.println( seq1 );
+  boolean b = WellFormed.isWellFormedXML( seq1);
+  } catch (Exception e){
+   System.out.println();
+   System.out.println( "SEQ1 Output: "+e.getMessage() );
+  }
+  System.out.println( "in exit msup Checking if seq2 valid." );
+   try {
+  System.out.println( seq2 );
+  boolean b = WellFormed.isWellFormedXML( seq2 );
+  } catch (Exception e){
+   System.out.println();
+   System.out.println( "SEQ2 Output: "+e.getMessage() );
+  }
+  String better = insertMsup( seq1, seq2, "<msup>", "</msup>" );
+  String mobetter = better;
+  System.out.println( "in exit msup Checking if mobetter valid." );
+   try {
+  System.out.println( mobetter );
+  boolean b = WellFormed.isWellFormedXML( mobetter );
+  } catch (Exception e){
+   System.out.println();
+   System.out.println( "MOBETTER Output: "+e.getMessage() );
+  }
+*/
   buf.append( "</msup>" );
-  setMML( ctx, buf.toString() );
+  //if (debugassoc) System.out.println( "msup: "+buf.toString() );
+  setMML( ctx, buf.toString());
  }
 @Override 
  public void exitMsubsup(BaknemParser.MsubsupContext ctx) { 
@@ -907,9 +1039,13 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
  public void exitBase(BaknemParser.BaseContext ctx) {
   if (trace) System.out.println( "\n   Exit base." ); 
   StringBuilder buf = new StringBuilder();
+
+  System.out.println( "base child cnt: "+ctx.getChildCount() );
   buf.append( "<mrow>" );
   for (int i=0; i<ctx.getChildCount(); i++ ){
    buf.append( getMML( ctx.getChild(i)) );
+   System.out.println( "Exit base child: "+i+" ink: "+
+      getMML( ctx.getChild(i)) );
   }
   buf.append( "</mrow>" );
   setMML( ctx, buf.toString());
@@ -951,15 +1087,19 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
 @Override 
  public void exitLgrp(BaknemParser.LgrpContext ctx) {
   //Could consider using mfenced for more options
+  String brl = ctx.getChild(0).getText();
+  String ink = Grouping.backTransLgrp( brl );
   setMML( ctx, "<mo fence=\"true\">"+
-               ctx.getChild(0).getText()+
+               ink+
                "</mo>" );
  }
                
 @Override 
  public void exitRgrp(BaknemParser.RgrpContext ctx) { 
+  String brl = ctx.getChild(0).getText();
+  String ink = Grouping.backTransRgrp( brl );
   setMML( ctx, "<mo fence=\"true\">"+
-               ctx.getChild(0).getText()+
+               ink+
                "</mo>" );
  }
 @Override
@@ -1045,21 +1185,28 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
 }
 @Override
  public void exitVar(BaknemParser.VarContext ctx) {
+
   if (trace) System.out.println( "exit var" );
   if (ctx.greeks() != null ){
    setMML( ctx, getMML( ctx.getChild( 0 ) ) );
    return;
   }
+
   List<BaknemParser.SingleLetContext> sls = ctx.singleLet();
-  if (sls != null){
+  if (sls != null && sls.size() > 0){
+   System.out.println( "in var doing sls logic list size: "+
+      sls.size() );
    StringBuilder buf = new StringBuilder();
    String brl;
    String ink;
    for (BaknemParser.SingleLetContext sl : sls){
     brl = sl.getText();
     ink =  BackTransHandler.backLetter2Tok( brl );
-    if (debug) System.out.println( "brl: "+brl+" ink: "+ink );
+    if (debugassoc) System.out.println( "brl: "+brl+" ink: "+ink );
     buf.append( BackTransHandler.backLetter2Tok( brl ));
+   } 
+   if (debugassoc){
+    System.out.println( "var sls: "+buf.toString() );
    }
    setMML( ctx, buf.toString() );
    if (debug) System.out.println( "sls: "+buf.toString() );
@@ -1067,10 +1214,15 @@ public void exitMfrac(BaknemParser.MfracContext ctx) {
    }
 
   //TO-DO Use translation table 
-  setMML( ctx, "<mi>"+ctx.getChild(0).getText()+"</mi>" );
+
+  String ink = 
+     BackTransHandler.backLetter2Tok( ctx.getChild(0).getText());
+  System.out.println( "var 1 child: "+ink );
+  setMML( ctx, ink );
  }
 
-@Override public void exitGreeks(BaknemParser.GreeksContext ctx) { 
+@Override
+ public void exitGreeks(BaknemParser.GreeksContext ctx) { 
   if (trace) System.out.println( "exit Greek letters." );
   StringBuilder buf = new StringBuilder();
   String grkEntity;

@@ -1,0 +1,6 @@
+package nemdata;
+class Superscript{
+ public static supInd = "^";
+ public static baselineInd = "\"";s
+Superscript(){}
+}//End Class Superscript

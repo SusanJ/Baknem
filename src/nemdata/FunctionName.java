@@ -25,7 +25,7 @@ public class FunctionName {
   new FunctionName ("hyperbolic cosecant", "hyperbolic cosecant" ),
   new FunctionName ("cotangent", "cotangent" ),
   new FunctionName ("hyperbolic cotangent", "hyperbolic cotangent" ),
-  new FunctionName ("determinant", "imaginary"),
+  new FunctionName ("determinant", "determinant"),
   new FunctionName ("error function", "error function"),
   new FunctionName ("exponential", "exponential"),
   new FunctionName ("exsecant", "exsecanty"),
@@ -55,7 +55,7 @@ public class FunctionName {
  };
  static final FunctionName [] funAbbrTable = {
 
-  new FunctionName ("amp",     "amp"), 
+  new FunctionName ("amp",     "amp", "longSay" ), 
   new FunctionName ("antilog", "antilog"),
   new FunctionName ("arc",     "arc"),
   new FunctionName ("arc cos", "arccos"),
@@ -64,7 +64,7 @@ public class FunctionName {
   new FunctionName ("arcsin",  "arcsin"),
   new FunctionName ("arg",     "arg"),
   new FunctionName ("colog",   "colog"),
-  new FunctionName ("cos",     "cos"),
+  new FunctionName ("cos",     "cos", "cosine"),
   new FunctionName ("cosh",    "cosh"),
   new FunctionName ("cot",     "cot"),
   new FunctionName ("coth",    "coth"),
@@ -81,7 +81,7 @@ public class FunctionName {
   new FunctionName ("hav",     "hav"),
   new FunctionName ("im",      "im"),
   new FunctionName ("inf",     "inf"),
-  new FunctionName ("lim",     "lim"),
+  new FunctionName ("lim",     "lim", "limit"),
   new FunctionName ("<lim",    "upper_lim"),
   new FunctionName ("%lim",    "lower_lim"),
   new FunctionName ("ln",      "ln"),
@@ -92,10 +92,10 @@ public class FunctionName {
   new FunctionName ("re",      "re"),
   new FunctionName ("sec",     "sec"),
   new FunctionName ("sech",    "sech"),
-  new FunctionName ("sin",     "sin"),
+  new FunctionName ("sin",     "sin", "sine"),
   new FunctionName ("sinh",    "sinh"),
   new FunctionName ("sup",     "sup"),
-  new FunctionName ("tan",     "tan"),
+  new FunctionName ("tan",     "tan", "tangent"),
   new FunctionName ("tanh",    "tanh"),
   new FunctionName ("vers",    "vers")
 };
@@ -113,10 +113,15 @@ public class FunctionName {
 
  String brl;
  String ink;
+ String longSay;
 
 FunctionName( String brl, String ink ){
  this.brl = brl;
  this.ink = ink;
+}
+FunctionName( String brl, String ink, String longSay ){
+ this(brl, ink );
+ this.longSay = longSay;
 }
 String getBrl(){ return brl; }
 String getInk(){ return ink; }

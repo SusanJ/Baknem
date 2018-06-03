@@ -50,6 +50,26 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 */
 	void exitFunWithArg(BaknemParser.FunWithArgContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BaknemParser#row}.
+	 * @param ctx the parse tree
+	 */
+	void enterRow(BaknemParser.RowContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#row}.
+	 * @param ctx the parse tree
+	 */
+	void exitRow(BaknemParser.RowContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#matrix}.
+	 * @param ctx the parse tree
+	 */
+	void enterMatrix(BaknemParser.MatrixContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#matrix}.
+	 * @param ctx the parse tree
+	 */
+	void exitMatrix(BaknemParser.MatrixContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BaknemParser#space}.
 	 * @param ctx the parse tree
 	 */
@@ -80,6 +100,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 */
 	void exitExprs(BaknemParser.ExprsContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BaknemParser#nexpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterNexpr(BaknemParser.NexprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#nexpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitNexpr(BaknemParser.NexprContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BaknemParser#expr}.
 	 * @param ctx the parse tree
 	 */
@@ -89,6 +119,16 @@ public interface BaknemParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr(BaknemParser.ExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BaknemParser#nlayexpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterNlayexpr(BaknemParser.NlayexprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BaknemParser#nlayexpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitNlayexpr(BaknemParser.NlayexprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BaknemParser#layexpr}.
 	 * @param ctx the parse tree

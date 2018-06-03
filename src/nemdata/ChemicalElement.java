@@ -13,8 +13,11 @@ public final class ChemicalElement {
 
 /**Based on information obtained from wikipedia:
    http://en.wikipedia.org/wiki/List_of_elements_by_name
+   "As of August 2017, 118 chemical elements are identified."
+   TO-DO Add 114-118
 */
  
+ static int currElements = 118;
  static final ChemicalElement [] elementTable = {
   new ChemicalElement ( ",ac", "Actinium"      ), // Atomic number: 89
   new ChemicalElement ( ",al", "Aluminum"      ), // Atomic number: 13
@@ -39,6 +42,7 @@ public final class ChemicalElement {
   new ChemicalElement ( ",cl", "Chlorine"      ), // Atomic number: 17
   new ChemicalElement ( ",cr", "Chromium"      ), // Atomic number: 24
   new ChemicalElement ( ",co", "Cobalt"        ), // Atomic number: 27
+  new ChemicalElement ( ",cn", "Copernicium"   ), // Atomic number: 112
   new ChemicalElement ( ",cu", "Copper"        ), // Atomic number: 29
   new ChemicalElement ( ",cm", "Curium"        ), // Atomic number: 96
   new ChemicalElement ( ",ds", "Darmstadtium"  ), // Atomic number: 110
@@ -79,6 +83,7 @@ public final class ChemicalElement {
   new ChemicalElement ( ",ne", "Neon"          ), // Atomic number: 10
   new ChemicalElement ( ",np", "Neptunium"     ), // Atomic number: 93
   new ChemicalElement ( ",ni", "Nickel"        ), // Atomic number: 28
+  new ChemicalElement ( ",nh ","Nihonium"      ), // Atomic number: 113
   new ChemicalElement ( ",nb", "Niobium"       ), // Atomic number: 41
   new ChemicalElement ( ",n",  "Nitrogen"      ), // Atomic number: 7
   new ChemicalElement ( ",no", "Nobelium"      ), // Atomic number: 102
@@ -184,6 +189,7 @@ static boolean makeTable(){
   String name = elementTable[i].getName(); 
   elements.put( sym, name );
  }
+ int numberOfElements = elements.size();
  return true;
 }
 }//End Class ChemicalElements.  

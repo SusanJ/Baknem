@@ -11,7 +11,8 @@ public class Dot4Sym{
 
  static boolean hasLead = false;
  static final String DOT4 = "@";
-
+  //The braille in the table does not have the leading 
+  //DOT4 which is added by the constructore.
  static final Dot4Sym [] d4Table = {
 
    //Dot-6 miscellaneous symbols
